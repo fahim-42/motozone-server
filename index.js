@@ -12,7 +12,6 @@ const { MongoClient } = require('mongodb');
 const ObjectId = require('mongodb').ObjectId;
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.p55ig.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
-// @ts-ignore
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
 
@@ -26,6 +25,7 @@ async function run() {
         const reviewsCollection = database.collection('reviews');
         const productsCollection = database.collection('products');
 
+
         // load all products
         app.get('/products', async (req, res) => {
             const allProducts = productsCollection.find({});
@@ -33,7 +33,6 @@ async function run() {
 
             // catch details by id
             const selectedProduct = req.query.pdt;
-            // @ts-ignore
             const queryProduct = { _id: ObjectId(selectedProduct) };
             const queryProductInfo = await productsCollection.find(queryProduct).toArray();
 
@@ -48,6 +47,14 @@ async function run() {
             const result = await productsCollection.insertOne(addProduct);
             res.json(result);
         })
+        // delete a product
+        app.delete('/products/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await productsCollection.deleteOne(query);
+            res.json(result);
+        })
+
 
         // load all reviews
         app.get('/reviews', async (req, res) => {
@@ -61,6 +68,8 @@ async function run() {
             const result = await reviewsCollection.insertOne(postReview);
             res.json(result);
         })
+
+
         // load all orders
         app.get('/orders', async (req, res) => {
             const allOrders = ordersCollection.find({});
@@ -88,6 +97,55 @@ async function run() {
             const query = { _id: ObjectId(id) };
             const result = await ordersCollection.deleteOne(query);
             res.json(result);
+        })
+
+
+        // load all users
+        app.get('/users', async (req, res) => {
+            const allUsers = usersCollection.find({});
+            const users = await allUsers.toArray();
+            res.send(users);
+        })
+        // collect user data
+        app.post('/users', async (req, res) => {
+            const user = req.body;
+            const result = await usersCollection.insertOne(user);
+            console.log(result);
+            res.json(result);
+        });
+        // upsert user data
+        app.put('/users', async (req, res) => {
+            const user = req.body;
+
+            const filter = { email: user.email };
+            const updateDoc = { $set: user };
+            const options = { upsert: true };
+
+            const result = await usersCollection.updateOne(filter, updateDoc, options);
+
+            res.json(result);
+        });
+        // set user as admin
+        app.put('/users/admin', async (req, res) => {
+            const user = req.body;
+
+            const filter = { email: user.email };
+            const updateDoc = { $set: { role: 'admin' } };
+
+            const result = await usersCollection.updateOne(filter, updateDoc);
+
+            res.json(result);
+        });
+        // check user as admin
+        app.get('/users/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const user = await usersCollection.findOne(query);
+            let isAdmin = false;
+            if (user?.role === 'admin') {
+                isAdmin = true;
+            }
+            res.json({ admin: isAdmin });
         })
     }
     finally {
