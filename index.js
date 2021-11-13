@@ -91,6 +91,18 @@ async function run() {
             const result = await ordersCollection.insertOne(postPurchaseInfo);
             res.json(result);
         })
+        // update order status
+        app.put('/orders/:id', async (req, res) => {
+            const id = req.params.id;
+            const orderStatus = req.body.status;
+            
+            const filter = { _id: ObjectId(id) };
+            const updateDoc = { $set: { status: orderStatus } };
+            const options = { upsert: true };
+
+            const result = await ordersCollection.updateOne(filter, updateDoc, options);
+            res.json(result);
+        });
         // delete a order
         app.delete('/orders/:id', async (req, res) => {
             const id = req.params.id;
