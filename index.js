@@ -85,6 +85,14 @@ async function run() {
                 myOrderInfo
             });
         })
+        // payment
+        app.get('/orders/:id', async (req, res) => {
+            const id = req.params.id;
+
+            const query = { _id: ObjectId(id) };
+            const result = await ordersCollection.findOne(query);
+            res.json(result);
+        })
         // post a order
         app.post('/orders', async (req, res) => {
             const postPurchaseInfo = req.body;
@@ -95,7 +103,7 @@ async function run() {
         app.put('/orders/:id', async (req, res) => {
             const id = req.params.id;
             const orderStatus = req.body.status;
-            
+
             const filter = { _id: ObjectId(id) };
             const updateDoc = { $set: { status: orderStatus } };
             const options = { upsert: true };
