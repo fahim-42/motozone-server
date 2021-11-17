@@ -14,6 +14,7 @@ const ObjectId = require('mongodb').ObjectId;
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.p55ig.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
+const stripe = require('stripe')(process.env.STRIPE_SECRET);
 
 async function run() {
     try {
@@ -167,6 +168,21 @@ async function run() {
             }
             res.json({ admin: isAdmin });
         })
+
+        
+        // stripe payment
+        app.post("/create-payment-intent", async (req, res) => {
+            const paymentInfo = req.body;
+
+            // stripe always count from cents(paisa)
+            const amount = paymentInfo * 100;
+            const paymentIntent = await stripe.paymentIntents.create({
+                currency: "bdt",
+                payment_method_types: ["card"],
+            });
+
+            res.send({ clientSecret: paymentIntent.client_secret });
+        });
     }
     finally {
         // await client.close();
