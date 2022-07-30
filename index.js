@@ -25,6 +25,7 @@ async function run() {
         const ordersCollection = database.collection('orders');
         const reviewsCollection = database.collection('reviews');
         const productsCollection = database.collection('products');
+        const subscribe = database.collection('subscribe');
 
 
         // load all products
@@ -167,6 +168,14 @@ async function run() {
                 isAdmin = true;
             }
             res.json({ admin: isAdmin });
+        })
+
+
+        // subscribe
+        app.post('/subscribe', async (req, res) => {
+            const subscribe = req.body;
+            const result = await subscribeCollection.insertOne(subscribe);
+            res.json(result);
         })
 
         
