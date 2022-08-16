@@ -25,7 +25,7 @@ async function run() {
         const ordersCollection = database.collection('orders');
         const reviewsCollection = database.collection('reviews');
         const productsCollection = database.collection('products');
-        const subscribe = database.collection('subscribe');
+        const subscribeCollection = database.collection('subscribe');
 
 
         // load all products
@@ -170,6 +170,13 @@ async function run() {
             res.json({ admin: isAdmin });
         })
 
+
+        // load all subscribe-data
+        app.get('/subscribe', async (req, res) => {
+            const allSubscribeData = subscribeCollection.find({});
+            const subscribe = await allSubscribeData.toArray();
+            res.send(subscribe);
+        })
 
         // subscribe
         app.post('/subscribe', async (req, res) => {
