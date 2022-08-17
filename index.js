@@ -8,6 +8,10 @@ const cors = require('cors');
 app.use(cors());
 app.use(express.json());
 
+//Express Fileupload
+const fileUpload = require('express-fileupload');
+app.use(fileUpload());
+
 const { MongoClient } = require('mongodb');
 const ObjectId = require('mongodb').ObjectId;
 
@@ -44,11 +48,35 @@ async function run() {
             });
         })
         // post new product
-        app.post('/products', async (req, res) => {
+        /*app.post('/products', async (req, res) => {
             const addProduct = req.body;
             const result = await productsCollection.insertOne(addProduct);
             res.json(result);
+        })*/
+
+        app.post('/products', async (req, res) => {
+            console.log('body', req.body);
+            console.log('files', req.files);
+            const name = req.body.name;
+            const price = req.body.price;
+            const description = req.body.description;
+
+            const pic = req.files.image;
+            const picData = pic.data;
+            const encodedPic = picData.toString('base64');
+            const imageBuffer = Buffer.from(encodedPic, 'base64');
+
+            const product = {
+                name,
+                image: imageBuffer,
+                price,
+                description
+            }
+            const result = await productsCollection.insertOne(product);
+            console.log(result);
+            res.json(result);
         })
+
         // delete a product
         app.delete('/products/:id', async (req, res) => {
             const id = req.params.id;
