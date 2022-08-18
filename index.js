@@ -215,18 +215,18 @@ async function run() {
 
         
         // stripe payment
-        app.post("/create-payment-intent", async (req, res) => {
+        app.post('/create-payment-intent', async (req, res) => {
             const paymentInfo = req.body;
 
             // stripe always count from cents(paisa)
             const amount = paymentInfo * 100;
             const paymentIntent = await stripe.paymentIntents.create({
-                currency: "bdt",
-                payment_method_types: ["card"],
+                currency: 'bdt',
+                amount: amount,
+                payment_method_types: ['card'],
             });
-
-            res.send({ clientSecret: paymentIntent.client_secret });
-        });
+            res.json({ clientSecret: paymentIntent.client_secret });
+        })
     }
     finally {
         // await client.close();
