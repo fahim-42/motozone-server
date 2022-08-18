@@ -130,7 +130,7 @@ async function run() {
             res.json(result);
         })
         // update order status
-        app.put('/orders/:id', async (req, res) => {
+        /*app.put('/orders/:id', async (req, res) => {
             const id = req.params.id;
             const orderStatus = req.body.status;
 
@@ -140,7 +140,23 @@ async function run() {
 
             const result = await ordersCollection.updateOne(filter, updateDoc, options);
             res.json(result);
-        });
+        });*/
+
+        //confirm payment
+        app.put('/orders/:id', async (req, res) => {
+            const id = req.params.id;
+            const payment = req.body;
+            const filter = { _id: ObjectId(id) };
+            const updateDoc = {
+                $set: {
+                    payment: payment
+                }
+            };
+            const result = await ordersCollection.updateOne(filter, updateDoc);
+            res.json(result);
+        })
+
+
         // delete a order
         app.delete('/orders/:id', async (req, res) => {
             const id = req.params.id;
@@ -213,7 +229,7 @@ async function run() {
             res.json(result);
         })
 
-        
+
         // stripe payment
         app.post('/create-payment-intent', async (req, res) => {
             const paymentInfo = req.body;
