@@ -219,7 +219,7 @@ async function run() {
             const paymentInfo = req.body;
 
             // stripe always count from cents(paisa)
-            const amount = paymentInfo * 100;
+            const amount = paymentInfo.price * 100;
             const paymentIntent = await stripe.paymentIntents.create({
                 currency: 'bdt',
                 amount: amount,
